@@ -1,25 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-#define FILE_NAME_LIMIT 100
-
-char activeFileName[FILE_NAME_LIMIT + 1];
-FILE *indexSeq;
-
-void createEmptyFile();
-void chooseActiveFile();
-void showActiveFileName();
-void createSerialFile();
-void createSequentialFile();
-void createActiveFile();
-void writeToActiveFile();
-void searchActiveFile();
-void reorganizationActiveFile();
+#include "defs.h"
+#include "operations.h"
+#include "validation.h"
 
 int main() {
-
-    int chosenMenu;
-
+    int chosen_menu;
     do {
         printf("==========================================\n");
         printf(" 1. Formiranje prazne datoteke \n");
@@ -35,36 +21,36 @@ int main() {
         printf("==========================================\n");
 
         printf("\n >> ");
-        scanf("%d",&chosenMenu);
+        scanf("%d",&chosen_menu);
         printf("\n");
 
-        switch(chosenMenu) {
+        switch(chosen_menu) {
             case 1:
-                createEmptyFile();
+                create_empty_file();
                 break;
             case 2:
-                chooseActiveFile();
+                choose_active_file();
                 break;
             case 3:
-                showActiveFileName();
+                show_active_file_name();
                 break;
             case 4:
-                createSerialFile();
+                create_serial_file();
                 break;
             case 5:
-                createSequentialFile();
+                create_sequential_file();
                 break;
             case 6:
-                createActiveFile();
+                create_active_file();
                 break;
             case 7:
-                writeToActiveFile();
+                write_to_active_file();
                 break;
             case 8:
-                searchActiveFile();
+                search_active_file();
                 break;
             case 9:
-                reorganizationActiveFile();
+                reorganization_active_file();
                 break;
             case 10:
                 printf("Izlaz...");
@@ -76,84 +62,10 @@ int main() {
         printf("\n\n");
         // system("cls");
 
-    } while(chosenMenu != 10);
+    } while(chosen_menu != 10);
 
     return 0;
 }
 
-void createEmptyFile() {
-    FILE* file;
-    char fileName[FILE_NAME_LIMIT];
 
-    printf(" Unesite ime datoteke: ");
-    scanf("%s", fileName);
 
-    file = fopen(fileName, "w");
-
-    if(file != NULL) {
-        printf(" Datoteka uspesno kreirana!");
-    }
-    else {
-        printf(" Doslo je do greske pri kreiranju datoteke!");
-    }
-
-    fclose(file);
-}
-
-void chooseActiveFile() {
-    FILE* file;
-    char fileName[FILE_NAME_LIMIT];
-
-    printf("Unesite naziv zaljene aktivne datoteke: ");
-    scanf("%s", fileName);
-
-    file = fopen(fileName, "r");
-
-    if(file != NULL) {
-        printf("Datoteka je uspesno otvorena.");
-    }
-    else {
-        printf("Doslo je do greske pri otvaranju datoteke!");
-        return;
-    }
-
-    if(indexSeq != NULL) {
-        fclose(indexSeq);
-    }
-    indexSeq = file;
-    strcpy(activeFileName, fileName);
-    fclose(file);
-}
-
-void showActiveFileName() {
-    if(strcmp(activeFileName, "") != 0) {
-        printf("Aktivna datoteka: %s", activeFileName);
-    }
-    else {
-        printf("Nema aktivne datoteke!");
-    }
-}
-
-void createSerialFile() {
-
-}
-
-void createSequentialFile() {
-
-}
-
-void createActiveFile() {
-
-}
-
-void writeToActiveFile() {
-
-}
-
-void searchActiveFile() {
-
-}
-
-void reorganizationActiveFile() {
-
-}

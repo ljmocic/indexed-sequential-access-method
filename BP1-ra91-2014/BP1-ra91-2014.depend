@@ -1,0 +1,18 @@
+# depslib dependency file v1.0
+1484524903 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\main.c
+	<stdio.h>
+	<stdlib.h>
+	"defs.h"
+	"operations.h"
+	"validation.h"
+
+1484522068 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\validation.c
+	"validation.h"
+
+1484522013 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\validation.h
+
+1484522114 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\defs.h
+
+1484522425 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\operations.h
+	"defs.h"
+
