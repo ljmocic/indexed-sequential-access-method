@@ -12,7 +12,7 @@ void write_to_active_file();
 void search_active_file();
 void reorganization_active_file();
 
-void printRecord(Furniture*);
+void printRecord(Record*);
 void print_file(char[]);
 
 #endif // OPERATIONS_H_INCLUDED

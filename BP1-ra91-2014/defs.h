@@ -5,16 +5,22 @@
 #define BLOCK_FACTOR 5
 
 typedef struct {
-    char id[9];
+    unsigned long id;
     char furniture_type[70];
     char manufacture_date[8];
     char manufacture_time[6];
     char model_name[50];
     char weight[10000];
-} Furniture;
+} Record;
 
 typedef struct {
-    Furniture furniture[BLOCK_FACTOR];
+    Record records[BLOCK_FACTOR];
 } Block;
+
+typedef struct record_list {
+    Record record;
+    struct record_list *next;
+} record_list;
+
 
 #endif // DEFS_H_INCLUDED

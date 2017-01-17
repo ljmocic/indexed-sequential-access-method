@@ -11,18 +11,22 @@
 
 1484522013 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\validation.h
 
-1484613325 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\defs.h
+1484659771 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\defs.h
 
-1484597250 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\operations.h
+1484657851 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\operations.h
 	"defs.h"
 
-1484607324 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\operations.c
+1484659814 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\operations.c
 	<stdio.h>
 	<stdlib.h>
 	"operations.h"
-
-1484613310 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\list.c
 	"list.h"
 
-1484613317 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\list.h
+1484659798 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\list.c
+	"defs.h"
+	"list.h"
+	<stdlib.h>
+
+1484660271 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\list.h
+	"defs.h"
 

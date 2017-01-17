@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "operations.h"
+#include "list.h"
 
 char active_file_name[FILE_NAME_LIMIT];
 FILE *index_seq;
@@ -59,7 +60,7 @@ void show_active_file_name() {
 }
 
 void create_serial_file() {
-    Furniture *furniture = malloc(sizeof(Furniture));
+    Record *furniture = malloc(sizeof(Record));
 
     int ret;
     fflush(stdin);
@@ -67,7 +68,9 @@ void create_serial_file() {
     {
         do {
             printf("Unesite identifikacioni broj: ");
-            gets(furniture->id);
+            char temp[50];
+            gets(temp);
+            furniture->id = atoi(temp);
             ret = validate_id(furniture->id);
         } while(ret != 1);
 
@@ -107,7 +110,7 @@ void create_serial_file() {
             return;
         }
 
-        if(fwrite(furniture, sizeof(Furniture), 1, serial_file)) {
+        if(fwrite(furniture, sizeof(Record), 1, serial_file)) {
             printf("\nSlog:");
             // print_record(furniture);
             printf(" uspesno zapisan u datoteku!");
@@ -121,49 +124,50 @@ void create_serial_file() {
 }
 
 void create_sequential_file() {
-    FILE *serial = fopen("serial.bin", "rb");
+    FILE *serial, *sequential;
+    Record furniture;
+    Block block;
+    record_list *head = NULL, *iterator;
+    int i = 0;
+
+    serial = fopen("serial.bin", "rb");
     if(serial == NULL) {
         printf("Greska prilikom otvaranja datoteke!");
         return;
     }
 
-    FILE *sequential = fopen("sequential.bin", "wb");
+    sequential = fopen("sequential.bin", "wb");
     if(sequential == NULL) {
         printf("Greska prilikom otvaranja datoteke!");
         return;
     }
 
-    Furniture furniture;
-    Block block;
-    /*
-    Furniture_list *head = NULL;
-    Furniture_list *iterator;
-
-    int i = 0;
-
-    while(fread(&furniture, sizeof(Furniture), 1, serial)) {
-        add_furniture(&head, &furniture);
+    // procitaj i serijske datoteke i dodaj u listu
+    while(fread(&furniture, sizeof(Record), 1, serial)){
+        add_record(&head, &furniture);
     }
 
+    // prodji kroz listu i zapisi blokove u serijsku
     iterator = head;
-
     while(iterator != NULL) {
-        block.furniture[i++] = iterator->furniture;
-        if(i == BLOCK_FACTOR) {
+        block.records[i++] = iterator->record;
+        if(i == BLOCK_FACTOR){
             fwrite(&block, sizeof(Block), 1, sequential);
+            i = 0;
         }
         iterator = iterator->next;
     }
-    */
 
-    //free(data);
+    // oslobodi resurse
+    delete_list(&head);
+    free(iterator);
     fclose(serial);
     fclose(sequential);
 
     print_file("sequential.bin");
 }
 
-void quick_sort(Furniture* array, int left, int right){
+void quick_sort(Record* array, int left, int right){
     if (left < right) {
         int i = left;
         int j = right;
@@ -172,7 +176,7 @@ void quick_sort(Furniture* array, int left, int right){
             while (atoi(array[i].id) < pivot) i++;
             while (atoi(array[j].id) > pivot) j--;
             if (i <= j) {
-                Furniture furniture = array[i];
+                Record furniture = array[i];
                 array[i] = array[j];
                 array[j] = furniture;
                 i++;
@@ -200,8 +204,8 @@ void reorganization_active_file() {
 
 }
 
-void print_record(Furniture *furniture) {
-    printf(" %s", furniture->id);
+void print_record(Record *furniture) {
+    printf(" %d", furniture->id);
     printf(" %s", furniture->furniture_type);
     printf(" %s", furniture->manufacture_date);
     printf(" %s", furniture->manufacture_time);
@@ -211,13 +215,13 @@ void print_record(Furniture *furniture) {
 
 void print_file(char file_name[]) {
     FILE *serial;
-    Furniture furniture;
+    Record furniture;
 
     serial = fopen(file_name, "rb");
     int i = 0;
 
-    printf("Prikaz datoteke:\n");
-    while(fread(&furniture, sizeof(Furniture), 1, serial)) {
+    printf("Prikaz datoteke: %s\n", file_name);
+    while(fread(&furniture, sizeof(Record), 1, serial)) {
         printf("\n\nSlog %d: ", ++i);
         print_record(&furniture);
     }
