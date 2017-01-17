@@ -16,13 +16,13 @@
 1484657851 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\operations.h
 	"defs.h"
 
-1484659814 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\operations.c
+1484682116 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\operations.c
 	<stdio.h>
 	<stdlib.h>
 	"operations.h"
 	"list.h"
 
-1484659798 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\list.c
+1484660248 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\list.c
 	"defs.h"
 	"list.h"
 	<stdlib.h>

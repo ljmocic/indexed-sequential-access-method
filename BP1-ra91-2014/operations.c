@@ -136,7 +136,7 @@ void create_sequential_file() {
         return;
     }
 
-    sequential = fopen("sequential.bin", "wb");
+    sequential = fopen("sequential.bin", "wb+");
     if(sequential == NULL) {
         printf("Greska prilikom otvaranja datoteke!");
         return;
@@ -150,12 +150,17 @@ void create_sequential_file() {
     // prodji kroz listu i zapisi blokove u serijsku
     iterator = head;
     while(iterator != NULL) {
-        block.records[i++] = iterator->record;
         if(i == BLOCK_FACTOR){
             fwrite(&block, sizeof(Block), 1, sequential);
             i = 0;
         }
+        block.records[i++] = iterator->record;
         iterator = iterator->next;
+    }
+
+    // zapisi poslednji blok
+    if(i > 0) {
+        fwrite(&block,sizeof(Block), 1, sequential);
     }
 
     // oslobodi resurse
@@ -189,7 +194,42 @@ void quick_sort(Record* array, int left, int right){
 }
 
 void create_active_file() {
+    FILE *sequential, *index_sequential;
+    Record record;
+    Block block;
+    int i = 0;
 
+    sequential = fopen("sequential.bin", "rb");
+    if(sequential == NULL) {
+        printf("Greska prilikom otvaranja datoteke!");
+        return;
+    }
+
+    // trebalo bi biti active, ali to cemo kasnije
+    index_sequential = fopen("index_sequential.bin", "wb+");
+    if(index_sequential == NULL) {
+        printf("Greska prilikom otvaranja datoteke!");
+        return;
+    }
+
+    // citaj iz sekvencijalne i pisi u primarnu zonu indeks sekvencijalne
+    while(fread(&record, sizeof(Record), 1, sequential)){
+        if(i == BLOCK_FACTOR){
+            fwrite(&block, sizeof(Block), 1, index_sequential);
+            i = 0;
+        }
+        block.records[i++] = record;
+    }
+    // kopiraj ostatak poslenjeg bloka
+    if(i > 0) {
+        fwrite(&block, sizeof(Block), 1, index_sequential);
+    }
+
+    // zatvori datoteke
+    fclose(sequential);
+    fclose(index_sequential);
+
+    print_file("index_sequential.bin");
 }
 
 void write_to_active_file() {
@@ -205,7 +245,7 @@ void reorganization_active_file() {
 }
 
 void print_record(Record *furniture) {
-    printf(" %d", furniture->id);
+    printf(" %lu", furniture->id);
     printf(" %s", furniture->furniture_type);
     printf(" %s", furniture->manufacture_date);
     printf(" %s", furniture->manufacture_time);
@@ -214,14 +254,14 @@ void print_record(Record *furniture) {
 }
 
 void print_file(char file_name[]) {
-    FILE *serial;
+    FILE *file;
     Record furniture;
 
-    serial = fopen(file_name, "rb");
+    file = fopen(file_name, "rb");
     int i = 0;
 
     printf("Prikaz datoteke: %s\n", file_name);
-    while(fread(&furniture, sizeof(Record), 1, serial)) {
+    while(fread(&furniture, sizeof(Record), 1, file)) {
         printf("\n\nSlog %d: ", ++i);
         print_record(&furniture);
     }
