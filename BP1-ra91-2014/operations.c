@@ -193,7 +193,9 @@ void quick_sort(Record* array, int left, int right){
     }
 }
 
-void create_active_file() {
+void create_index_sequential_file() {
+
+    // kreiranje primarne zone
     FILE *sequential, *index_sequential;
     Record record;
     Block block;
@@ -230,7 +232,11 @@ void create_active_file() {
     fclose(index_sequential);
 
     print_file("index_sequential.bin");
+
+    // formiranje zone indeksa
 }
+
+
 
 void write_to_active_file() {
 

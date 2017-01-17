@@ -41,7 +41,7 @@ int main() {
                 create_sequential_file();
                 break;
             case 6:
-                create_active_file();
+                create_index_sequential_file();
                 break;
             case 7:
                 write_to_active_file();
