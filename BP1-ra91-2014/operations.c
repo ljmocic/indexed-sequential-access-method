@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "operations.h"
 #include "list.h"
 
@@ -234,6 +235,7 @@ void create_index_sequential_file() {
     print_file("index_sequential.bin");
 
     // formiranje zone indeksa
+
 }
 
 
