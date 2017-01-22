@@ -229,13 +229,27 @@ void create_index_sequential_file() {
     }
 
     // zatvori datoteke
-    fclose(sequential);
-    fclose(index_sequential);
+    // fclose(sequential);
+    // fclose(index_sequential);
 
     print_file("index_sequential.bin");
 
     // formiranje zone indeksa
 
+    int number_of_blocks = count_blocks(sequential);
+
+
+
+}
+
+int count_blocks(FILE *file) {
+    Block block;
+    int number_of_blocks = 0;
+    while(fread(&block, sizeof(Block), 1, file)) {
+        number_of_blocks++;
+    }
+    printf("Number of blocks %d \n", number_of_blocks);
+    return number_of_blocks;
 }
 
 

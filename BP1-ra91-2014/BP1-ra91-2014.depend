@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1484524903 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\main.c
+1484682746 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\main.c
 	<stdio.h>
 	<stdlib.h>
 	"defs.h"
@@ -11,22 +11,23 @@
 
 1484522013 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\validation.h
 
-1484659771 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\defs.h
+1484685347 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\defs.h
 
 1484657851 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\operations.h
 	"defs.h"
 
-1484682116 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\operations.c
+1485112844 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\operations.c
 	<stdio.h>
 	<stdlib.h>
+	<math.h>
 	"operations.h"
 	"list.h"
 
-1484660248 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\list.c
+1485111709 source:c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\list.c
 	"defs.h"
 	"list.h"
 	<stdlib.h>
 
-1484660271 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\list.h
+1485111714 c:\users\ljmocic\documents\github\indexed-sequential-access-method\bp1-ra91-2014\list.h
 	"defs.h"
 
