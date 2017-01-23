@@ -1,11 +1,11 @@
+#include <stdlib.h>
 #include "defs.h"
 #include "list.h"
-#include <stdlib.h>
 
-void add_record(record_list** head, Record* record) {
+void add_record(Record_list** head, Record* record) {
 
-    record_list *prev, *temp;
-    record_list *data = (record_list*) malloc(sizeof(record_list));
+    Record_list *prev, *temp;
+    Record_list *data = (Record_list*) malloc(sizeof(Record_list));
     memcpy(&data->record, record, sizeof(Record));
 
     if ((*head) == NULL || (record->id < (*head)->record.id)) {
@@ -29,9 +29,9 @@ void add_record(record_list** head, Record* record) {
     }
 }
 
-void delete_list(record_list** glava) {
-    record_list *temp = *glava;
-    record_list *last;
+void delete_list(Record_list** glava) {
+    Record_list *temp = *glava;
+    Record_list *last;
 
     while (temp) {
         last = temp;

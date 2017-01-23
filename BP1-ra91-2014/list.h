@@ -3,7 +3,7 @@
 
 #include "defs.h"
 
-void add_record(record_list**, Record*);
-void delete_list(record_list**);
+void add_record(Record_list**, Record*);
+void delete_list(Record_list**);
 
 #endif // LIST_H_INCLUDED
