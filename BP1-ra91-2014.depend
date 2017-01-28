@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1485611053 source:c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\main.c
+1485634552 source:c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\main.c
 	"defs.h"
 	"output.h"
 	"list.h"
@@ -7,13 +7,13 @@
 1485605784 source:c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\list.c
 	"defs.h"
 
-1485611031 c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\defs.h
+1485620362 c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\defs.h
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
 	<math.h>
 
-1485611122 source:c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\output.c
+1485632191 source:c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\output.c
 	"output.h"
 
 1485611119 c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\output.h

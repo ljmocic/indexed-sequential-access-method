@@ -20,6 +20,10 @@
 #define IBF 0.6
 #define MAX_KEY_VALUE 999999999
 
+//
+#define STD_MODE 0
+#define ORG_MODE 1
+
 // naziv aktivne datoteke
 char active_file_name[FILE_NAME_LIMIT];
 
@@ -69,9 +73,11 @@ typedef struct Header {
 } Header;
 
 typedef struct Search_result {
+    int found;
     int primary_zone_address;
     int overflow_zone;
     int index;
+    Record record;
 } Search_result;
 
 // deklaracije koriscenih funkcija

@@ -60,8 +60,8 @@ void print_primary_zone() {
     Block_primary_zone *bpz = malloc(sizeof(Block_primary_zone));
     int i;
 
-    index_sequential = fopen("index_sequential.bin", "rb");
-    if(index_sequential) {
+    index_sequential = fopen(active_file_name, "rb");
+    if(index_sequential == NULL) {
         printf("\n Doslo je do greske pri otvaranju datoteke! \n");
     }
 
@@ -87,8 +87,8 @@ void print_index_zone() {
     Block_index_zone *biz = malloc(sizeof(Block_index_zone));
     int i;
 
-    index_sequential = fopen("index_sequential.bin", "rb");
-    if(!index_sequential) {
+    index_sequential = fopen(active_file_name, "rb");
+    if(index_sequential == NULL) {
         printf("\n Doslo je do greske pri otvaranju datoteke! \n");
     }
 
@@ -103,6 +103,7 @@ void print_index_zone() {
         printf(" %d", biz->keys[0]);
         printf(" %d", biz->keys[1]);
     }
+    printf("\n==========================================\n");
     fclose(index_sequential);
 }
 
@@ -112,8 +113,8 @@ void print_overflow_zone() {
     Block_overflow_zone boz;
     int i;
 
-    index_sequential = fopen("index_sequential.bin", "rb");
-    if(!index_sequential) {
+    index_sequential = fopen(active_file_name, "rb");
+    if(index_sequential == NULL) {
         printf("\n Doslo je do greske pri otvaranju datoteke! \n");
     }
 
@@ -136,7 +137,7 @@ void print_temp_serial() {
     Record *record = malloc(sizeof(Record));
 
     serial = fopen("temp_serial.bin", "rb");
-    if(!serial) {
+    if(serial == NULL) {
         printf("\n Doslo je do greske pri otvaranju datoteke! \n");
     }
 
