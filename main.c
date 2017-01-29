@@ -192,6 +192,11 @@ void create_sequential_file(int reorganization) {
         iterator = iterator->next;
     } while(iterator != NULL);
 
+    if(i > 0) {
+        fwrite(&block, sizeof(Block), 1, sequential);
+    }
+
+
     delete_list(&head);
     free(iterator);
     fclose(serial);
@@ -204,6 +209,7 @@ void create_index_sequential_file(int reorganization) {
 
     if(reorganization) {
         sequential = fopen("temp_sequential.bin", "rb");
+        printf("OTVORENA TEMP SEQ!");
     }
     else {
         sequential = fopen("sequential.bin", "rb");
@@ -225,6 +231,7 @@ void create_index_sequential_file(int reorganization) {
     // pronadji broj blokova sekvencijane
     fseek(sequential, 0, SEEK_END);
     int number_of_records = ftell(sequential) / sizeof(Record);
+    printf("BROJ SLOGOVA! %d", number_of_records);
     rewind(sequential);
 
     // broj dozvoljenih slogova u bloku primarne zone
@@ -235,16 +242,17 @@ void create_index_sequential_file(int reorganization) {
     if(number_of_records % num_allowed_rec_bpz > 0) {
         number_of_blocks++;
     }
+    //printf("BROJ BLOKOVA! %d", number_of_blocks);
 
     // zapisi header na pocetak datoteke
     Header header = init_header();
+    header.block_count_primary_zone = number_of_blocks;
     fwrite(&header, sizeof(Header), 1, index_sequential);
 
     // sacuvaj broj blokova u primarnoj zoni, trebace ti kasnije
-    header.block_count_primary_zone = number_of_blocks;
 
     // niz blokova primarne zone
-    Block_primary_zone bpz[number_of_blocks];
+    Block_primary_zone bpz[number_of_blocks + 1];
 
     // inicijalizujemo blokove primarne zone
     for(i = 0; i < number_of_blocks; i++) {
@@ -280,6 +288,7 @@ void create_index_sequential_file(int reorganization) {
             record_counter = 0;
             bpz[bpz_counter].records[record_counter++] = record;
         }
+        print_record(&record);
     }
 
     if(number_of_blocks % num_allowed_rec_bpz != 0) {
@@ -418,31 +427,39 @@ void create_index_sequential_file(int reorganization) {
             adr_novi[j] = ftell(index_sequential);
             fwrite(&novi[j], sizeof(Block_index_zone), 1, index_sequential);
             header.block_count_index_zone++;
-            //printf("\nPROBAJ: %d %d\n", novi[j].keys[0], novi[j].keys[1]);
+            printf("\nPROBAJ PARNI: %d %d\n", novi[j].keys[0], novi[j].keys[1]);
         }
         //printf("dasda %d" ,preth[nodes_count[h - i + 1] - 1].keys[1]);
         if(preth[nodes_count[h - i + 1] - 1].keys[1] == -1 && h - i != 1) {
-            novi[j].keys[0] = preth[p].keys[0];
+            novi[j].keys[0] = 999999999;
             novi[j].address[0] = adr_preth[p++];
             novi[j].keys[1] = -1;
             novi[j].address[1] = -1;
-            //printf("\nPROBAJ1: %d %d\n", novi[j].keys[0], novi[j].keys[1]);
+            printf("\nPROBAJ GRANICNI: %d %d\n", novi[j].keys[0], novi[j].keys[1]);
+        }
+        if(h - i == 1 && preth[nodes_count[h - i + 1] - 1].keys[1] == -1) {
+            novi[j].keys[0] = preth[p].keys[1];
+            novi[j].address[0] = adr_preth[p++];
+            novi[j].keys[1] = preth[p].keys[0];
+            novi[j].address[1] = adr_preth[p++];
+            printf("\nPROBAJ2: %d %d\n", novi[j].keys[0], novi[j].keys[1]);
         }
         else {
             if(h - i == 1 && preth[nodes_count[h - i + 1] - 1].keys[1] == -1) {
                 novi[j].keys[0] = preth[p].keys[1];
                 novi[j].address[0] = adr_preth[p++];
-                novi[j].keys[1] = preth[p].keys[0];
+                novi[j].keys[1] = 999999999;
                 novi[j].address[1] = adr_preth[p++];
             }
-            else {
+            else if(h - i == 1){
                 novi[j].keys[0] = preth[p].keys[1];
                 novi[j].address[0] = adr_preth[p++];
                 novi[j].keys[1] = preth[p].keys[1];
                 novi[j].address[1] = adr_preth[p++];
             }
-            //printf("\nPROBAJ2: %d %d\n", novi[j].keys[0], novi[j].keys[1]);
+            printf("\nPROBAJ3 GLAVNI: %d %d\n", novi[j].keys[0], novi[j].keys[1]);
         }
+
         adr_novi[j] = ftell(index_sequential);
         fwrite(&novi[j], sizeof(Block_index_zone), 1, index_sequential);
         header.block_count_index_zone++;
@@ -521,7 +538,7 @@ void search_active_file() {
 }
 
 void reorganization_active_file() {
-    FILE *index_sequential = fopen("index_sequential.bin", "rb");
+    FILE *index_sequential = fopen(active_file_name, "rb");
     FILE *temp_serial = fopen("temp_serial.bin", "wb");
     int i, j;
 
@@ -548,6 +565,7 @@ void reorganization_active_file() {
         fread(&boz, sizeof(Block_overflow_zone), 1, index_sequential);
         if(boz.status == 1) {
             fwrite(&boz.records[0], sizeof(Record), 1, temp_serial);
+            print_record(&boz.records[0]);
         }
     }
     fclose(index_sequential);
@@ -556,7 +574,7 @@ void reorganization_active_file() {
     // kreiraj sekvecnijalnu u reorg modu
     create_sequential_file(ORG_MODE);
     // pokreni ponovo generisanje stabla i ostalog
-    //system("PAUSE");
+    // system("PAUSE");
     create_index_sequential_file(ORG_MODE);
 }
 
@@ -718,7 +736,7 @@ void add_record_to_primary(Record record) {
 // pretraga prolaskom kroz primarnu zonu
 Search_result search_primary_overflow(int id) {
     // pretraga
-    FILE *index_sequential = fopen("index_sequential.bin", "rb");
+    FILE *index_sequential = fopen(active_file_name, "rb");
     Block_index_zone biz;
     Header header;
     fread(&header, sizeof(Header), 1, index_sequential);
@@ -776,8 +794,9 @@ Search_result search_primary_overflow(int id) {
         do {
             int last = boz.address;
             fseek(index_sequential, boz.address, SEEK_SET);
-            fread(&boz, sizeof(Block_overflow_zone), 1, index_sequential);
-            // printf(" %d %d", boz.records[0].id, id);
+            if(!fread(&boz, sizeof(Block_overflow_zone), 1, index_sequential)) {
+                break;
+            }// printf(" %d %d", boz.records[0].id, id);
 
             if(boz.records[0].id == id) {
                 //printf("Gledam da li su id jednaki! \n");
