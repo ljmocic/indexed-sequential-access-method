@@ -1,26 +1,31 @@
 # depslib dependency file v1.0
-1485655578 source:c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\main.c
+1485701860 source:c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\main.c
 	"defs.h"
 	"output.h"
 	"list.h"
+	"validation.h"
 
 1485605784 source:c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\list.c
 	"defs.h"
 
-1485620362 c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\defs.h
+1485701960 c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\defs.h
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
 	<math.h>
 
-1485632191 source:c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\output.c
+1485695645 source:c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\output.c
 	"output.h"
 
-1485611119 c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\output.h
+1485695636 c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\output.h
 	"defs.h"
 
 1485557426 c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\list.h
 	"defs.h"
 
-1485559845 source:c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\validation.c
+1485701751 source:c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\validation.c
+	"validation.h"
+	"defs.h"
+
+1485701976 c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\validation.h
 

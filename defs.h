@@ -9,9 +9,10 @@
 // orgranicenja sloga
 #define FILE_NAME_LIMIT 200
 #define FURNITURE_TYPE_LIMIT 70
-#define PRODUCTION_DATE_LIMIT 4
-#define PRODUCTION_TIME_LIMIT 8
+#define PRODUCTION_DATE_LIMIT 8
+#define PRODUCTION_TIME_LIMIT 4
 #define MODEL_NAME_LIMIT 50
+#define WEIGHT_LIMIT 50
 
 // ostala ogranicenja
 #define BLOCK_FACTOR 5
@@ -92,9 +93,11 @@ void search_active_file();
 void reorganization_active_file();
 
 // pomocne fije
-void get_record_from_user(Record*);
+void get_record_from_user_serial(Record*);
+void get_record_from_user_index_sequential(Record*);
 void add_record_to_primary(Record);
 Search_result search_primary_overflow(int);
+Search_result search_serial(int);
 int find_primary_address_block_to_write(int id);
 Header init_header();
 

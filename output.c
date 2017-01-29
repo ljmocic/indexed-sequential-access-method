@@ -147,3 +147,17 @@ void print_temp_serial() {
     fclose(serial);
 }
 
+void print_temp_sequential() {
+    FILE *sequential;
+    Record *record = malloc(sizeof(Record));
+
+    sequential = fopen("temp_sequential.bin", "rb");
+    if(!sequential) {
+        printf("\n Doslo je do greske pri otvaranju datoteke! \n");
+    }
+
+    while(fread(record, sizeof(Record), 1, sequential)){
+        print_record(record);
+    }
+    fclose(sequential);
+}

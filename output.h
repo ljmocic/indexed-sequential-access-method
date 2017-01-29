@@ -11,5 +11,6 @@ void print_primary_zone();
 void print_index_zone();
 void print_overflow_zone();
 void print_temp_serial();
+void print_temp_sequential();
 
 #endif // OUTPUT_H_INCLUDED

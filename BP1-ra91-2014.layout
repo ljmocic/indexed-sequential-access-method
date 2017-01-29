@@ -2,14 +2,71 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug" />
-	<File name="main.c" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="output.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2152" topLine="52" />
+			<Cursor1 position="304" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="validation.c" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="931" topLine="0" />
 		</Cursor>
 		<Folding>
-			<Collapse line="158" />
-			<Collapse line="219" />
-			<Collapse line="251" />
+			<Collapse line="3" />
+			<Collapse line="16" />
+			<Collapse line="29" />
+			<Collapse line="38" />
+			<Collapse line="47" />
+			<Collapse line="56" />
+			<Collapse line="65" />
+		</Folding>
+	</File>
+	<File name="validation.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="322" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="defs.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2265" topLine="78" />
+		</Cursor>
+	</File>
+	<File name="output.c" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1041" topLine="0" />
+		</Cursor>
+		<Folding>
+			<Collapse line="3" />
+			<Collapse line="27" />
+			<Collapse line="42" />
+			<Collapse line="57" />
+			<Collapse line="84" />
+			<Collapse line="109" />
+			<Collapse line="134" />
+			<Collapse line="149" />
+		</Folding>
+	</File>
+	<File name="main.c" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="21868" topLine="32" />
+		</Cursor>
+		<Folding>
+			<Collapse line="5" />
+			<Collapse line="96" />
+			<Collapse line="115" />
+			<Collapse line="136" />
+			<Collapse line="164" />
+			<Collapse line="211" />
+			<Collapse line="501" />
+			<Collapse line="509" />
+			<Collapse line="545" />
+			<Collapse line="591" />
+			<Collapse line="677" />
+			<Collapse line="715" />
+			<Collapse line="868" />
+			<Collapse line="955" />
+			<Collapse line="980" />
+			<Collapse line="1021" />
 		</Folding>
 	</File>
 </CodeBlocks_layout_file>

@@ -1,6 +1,7 @@
 #include "defs.h"
 #include "output.h"
 #include "list.h"
+#include "validation.h"
 
 int main() {
     int chosen_menu;
@@ -20,7 +21,7 @@ int main() {
         printf(" 12. Prikazi sekvencijalnu \n");
         printf(" 13. Prikazi indeks sekvencijalnu \n");
         printf(" 14. Prikazi temp_serial za reorganizaciju \n");
-        printf(" 15. Ocisti konzolu \n");
+        printf(" 15. Prikazi temp_sequential za reorganizaciju \n");
         printf("==========================================\n");
 
         printf("\n >> ");
@@ -76,6 +77,11 @@ int main() {
             case 14:
                 printf("\n Prikaz serijske za reorganizaciju: \n");
                 print_temp_serial();
+                break;
+            case 15:
+                printf("\n Prikaz sekvencijalne za reorganizaciju: \n");
+                print_temp_sequential();
+                break;
             default:
                 break;
         }
@@ -149,7 +155,7 @@ void create_serial_file() {
     for(i = 0; i < BLOCK_FACTOR; i++) {
         Record *record = (Record *)malloc(sizeof(Record));
         printf("\n Slog %d:", i + 1);
-        get_record_from_user(record);
+        get_record_from_user_serial(record);
         fwrite(record, sizeof(Record), 1, serial);
     }
 
@@ -161,7 +167,7 @@ void create_sequential_file(int reorganization) {
     Block block;
     Record record;
     Record_list *head = NULL, *iterator;
-    int i = 0;
+    int i = 0, j;
 
     if(reorganization) {
         sequential = fopen("temp_sequential.bin", "wb");
@@ -187,15 +193,15 @@ void create_sequential_file(int reorganization) {
         block.records[i++] = iterator->record;
         if(i == BLOCK_FACTOR) {
             fwrite(&block, sizeof(Block), 1, sequential);
+            printf("blok: %d %d %d %d %d", block.records[0].id, block.records[1].id, block.records[2].id, block.records[3].id, block.records[4].id);
             i = 0;
         }
         iterator = iterator->next;
     } while(iterator != NULL);
 
-    if(i > 0) {
-        fwrite(&block, sizeof(Block), 1, sequential);
+    for(j = 0; j < i; j++) {
+        fwrite(&block.records[j], sizeof(Record), 1, sequential);
     }
-
 
     delete_list(&head);
     free(iterator);
@@ -496,7 +502,7 @@ void create_index_sequential_file(int reorganization) {
 void write_to_active_file() {
     // ukoliko kljuc ne postoji
     Record record;
-    get_record_from_user(&record);
+    get_record_from_user_index_sequential(&record);
     // print_record(&record);
     add_record_to_primary(record);
 }
@@ -550,20 +556,24 @@ void reorganization_active_file() {
     fread(&header, sizeof(Header), 1, index_sequential);
 
     Block_primary_zone bpz;
-    for(i = 0; i < header.block_count_index_zone; i++) {
+    for(i = 0; i < header.block_count_index_zone + 1; i++) {
         fread(&bpz, sizeof(Block_primary_zone), 1, index_sequential);
         for(j = 0; j < BLOCK_FACTOR; j++) {
             if(bpz.records[j].status == 1) {
                 fwrite(&bpz.records[j], sizeof(Record), 1, temp_serial);
+                print_record(&bpz.records[j]);
             }
         }
     }
 
     fseek(index_sequential, header.overflow_zone_address, SEEK_SET);
     Block_overflow_zone boz;
-    for(i = 0; i < BLOCK_FACTOR; i++) {
+
+    int count_index_zone = (header.free_overflow_block - header.overflow_zone_address) / sizeof(Block_overflow_zone);
+
+    for(i = 0; i < count_index_zone; i++) {
         fread(&boz, sizeof(Block_overflow_zone), 1, index_sequential);
-        if(boz.status == 1) {
+        if(boz.status == 1 && boz.records[0].id != -1) {
             fwrite(&boz.records[0], sizeof(Record), 1, temp_serial);
             print_record(&boz.records[0]);
         }
@@ -579,12 +589,106 @@ void reorganization_active_file() {
 }
 
 // pomocne funkcije
-void get_record_from_user(Record *record) {
+void get_record_from_user_serial(Record *record) {
     // TODO validacija
+    char temp_string[FILENAME_MAX + 1];
+    int validation = 0;
 
-    printf("\n Unesite identifikacioni broj(9 cifara): ");
-    fflush(stdin);
-    scanf("%d", &record->id);
+    do {
+        printf("\n Unesite identifikacioni broj(9 cifara): ");
+        fflush(stdin);
+        gets(temp_string);
+        validation = validate_id_serial(atoi(temp_string));
+        if(validation) {
+            record->id = atoi(temp_string);
+        }
+        else {
+            printf(" Identifikacioni broj vec postoji u datoteci! \n");
+        }
+    } while(validation == 0);
+
+    do {
+        printf(" Unesite vrstu namestaja(najvise 70 karaktera): ");
+        fflush(stdin);
+        gets(temp_string);
+        validation = validate_furniture_type(temp_string);
+        if(validation) {
+            strcpy(record->furniture_type, temp_string);
+        }
+        else {
+            printf(" Podatak nije validan! \n");
+        }
+    } while(validation == 0);
+
+    do {
+        printf(" Unesite datum proizvodnje namestaja(DDMMGGGG): ");
+        fflush(stdin);
+        gets(temp_string);
+        validation = validate_date(temp_string);
+        if(validation) {
+            strcpy(record->production_date, temp_string);
+        }
+        else {
+            printf(" Podatak nije validan! \n");
+        }
+    } while(validation == 0);
+
+    do {
+        printf(" Unesite vreme proizvodnje namestaja(HHMM): ");
+        fflush(stdin);
+        gets(temp_string);
+        validation = validate_time(temp_string);
+        if(validation) {
+            strcpy(record->production_time, temp_string);
+        }
+        else {
+            printf(" Podatak nije validan! \n");
+        }
+    } while(validation == 0);
+
+    do {
+        printf(" Unesite naziv modela namestaja(do 50 karaktera): ");
+        fflush(stdin);
+        gets(temp_string);
+        validation = validate_model_name(temp_string);
+        if(validation) {
+            strcpy(record->model_name, temp_string);
+        }
+        else {
+            printf(" Podatak nije validan! \n");
+        }
+    } while(validation == 0);
+
+    do {
+        printf(" Unesite tezinu modela namestaja(do 10000 kg): ");
+        fflush(stdin);
+        gets(temp_string);
+        validation = validate_weight(atoi(temp_string));
+        if(validation) {
+            record->weight = atoi(temp_string);
+        }
+        else {
+            printf(" Podatak nije validan! \n");
+        }
+    } while(validation == 0);
+
+    record->status = 1;
+}
+
+void get_record_from_user_index_sequential(Record *record) {
+    // TODO validacija
+    char temp_string[FILENAME_MAX + 1];
+    int validation = 0;
+
+    do {
+        printf("\n Unesite identifikacioni broj(9 cifara): ");
+        fflush(stdin);
+        gets(temp_string);
+        validation = validate_id_index_sequential(atoi(temp_string));
+        if(validation) {
+            record->id = atoi(temp_string);
+        }
+    } while(validation == 0);
 
     printf(" Unesite vrstu namestaja(najvise 70 karaktera): ");
     fflush(stdin);
@@ -634,7 +738,32 @@ void add_record_to_primary(Record record) {
         //printf("%d ", count);
     }
 
-    // ako je blok pun, onda automatski prebaci poslednji u prekoracioce
+
+    if(count == BLOCK_FACTOR && bpz.address == -1 && bpz.records[BLOCK_FACTOR - 1].id < record.id && header.primary_zone_adress + (header.block_count_primary_zone - 1) * sizeof(Block_primary_zone) == address_primary){
+        // samo dodaj u prvi prekoracilac
+        // samo za poslednji blok
+        Block_overflow_zone boz;
+        boz.address = bpz.address;
+        boz.status = 1;
+        memcpy(&boz.records[0], &record, sizeof(Record));
+
+        bpz.address = header.free_overflow_block;
+
+        fseek(index_sequential, header.free_overflow_block, SEEK_SET);
+        fwrite(&boz, sizeof(Block_overflow_zone), 1, index_sequential);
+        // printf("Azuriram header!\n");
+        header.free_overflow_block = ftell(index_sequential);
+
+        fseek(index_sequential, 0, SEEK_SET);
+        fwrite(&header, sizeof(Header), 1, index_sequential);
+
+        // sacuvaj modifikovani blok
+        fseek(index_sequential, address_primary, SEEK_SET);
+        fwrite(&bpz, sizeof(Block_primary_zone), 1, index_sequential);
+
+        fclose(index_sequential);
+        return;
+    }
     if(count == BLOCK_FACTOR) {
 
         // TODO ukloniti bug vezan za dodavanje prvog u prekoracioce ukoliko je 12 23 34 41 51 | 61 -> 12 23 34 41 51 | 59 61
@@ -702,9 +831,12 @@ void add_record_to_primary(Record record) {
         //printf("%d ", bpz.records[i].id);
         if(bpz.records[i].id == -1 || bpz.records[i].status == 0) {
             index = i;
+            printf("Nasao index: %d \t", index);
+            break;
         }
         else if(bpz.records[i].id > record.id) {
             index = i;
+            printf("Nasao index: %d \t", index);
             break;
         }
     }
@@ -818,6 +950,31 @@ Search_result search_primary_overflow(int id) {
     sr.primary_zone_address = -1;
     sr.found = 0;
 
+    return sr;
+}
+
+Search_result search_serial(int id) {
+    FILE *serial;
+    Record *record = malloc(sizeof(Record));
+
+    serial = fopen("serial.bin", "rb");
+    if(!serial) {
+        printf("\n Doslo je do greske pri otvaranju datoteke! \n");
+    }
+
+    Search_result sr;
+
+    while(fread(record, sizeof(Record), 1, serial)){
+        //print_record(record);
+        if(record->id == id) {
+            sr.found = 1;
+            fclose(serial);
+            return sr;
+        }
+    }
+    sr.found = 0;
+
+    fclose(serial);
     return sr;
 }
 
