@@ -9,5 +9,4 @@ int validate_time(char*);
 int validate_model_name(char*);
 int validate_weight(int);
 
-
 #endif // VALIDATION_H_INCLUDED

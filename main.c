@@ -676,7 +676,6 @@ void get_record_from_user_serial(Record *record) {
 }
 
 void get_record_from_user_index_sequential(Record *record) {
-    // TODO validacija
     char temp_string[FILENAME_MAX + 1];
     int validation = 0;
 
@@ -688,27 +687,75 @@ void get_record_from_user_index_sequential(Record *record) {
         if(validation) {
             record->id = atoi(temp_string);
         }
+        else {
+            printf(" Identifikacioni broj vec postoji u datoteci! \n");
+        }
     } while(validation == 0);
 
-    printf(" Unesite vrstu namestaja(najvise 70 karaktera): ");
-    fflush(stdin);
-    gets(record->furniture_type);
+    do {
+        printf(" Unesite vrstu namestaja(najvise 70 karaktera): ");
+        fflush(stdin);
+        gets(temp_string);
+        validation = validate_furniture_type(temp_string);
+        if(validation) {
+            strcpy(record->furniture_type, temp_string);
+        }
+        else {
+            printf(" Podatak nije validan! \n");
+        }
+    } while(validation == 0);
 
-    printf(" Unesite datum proizvodnje namestaja(DDMMGGG): ");
-    fflush(stdin);
-    gets(record->production_date);
+    do {
+        printf(" Unesite datum proizvodnje namestaja(DDMMGGGG): ");
+        fflush(stdin);
+        gets(temp_string);
+        validation = validate_date(temp_string);
+        if(validation) {
+            strcpy(record->production_date, temp_string);
+        }
+        else {
+            printf(" Podatak nije validan! \n");
+        }
+    } while(validation == 0);
 
-    printf(" Unesite vreme proizvodnje namestaja(HHMM): ");
-    fflush(stdin);
-    gets(record->production_time);
+    do {
+        printf(" Unesite vreme proizvodnje namestaja(HHMM): ");
+        fflush(stdin);
+        gets(temp_string);
+        validation = validate_time(temp_string);
+        if(validation) {
+            strcpy(record->production_time, temp_string);
+        }
+        else {
+            printf(" Podatak nije validan! \n");
+        }
+    } while(validation == 0);
 
-    printf(" Unesite naziv modela namestaja(do 50 karaktera): ");
-    fflush(stdin);
-    gets(record->model_name);
+    do {
+        printf(" Unesite naziv modela namestaja(do 50 karaktera): ");
+        fflush(stdin);
+        gets(temp_string);
+        validation = validate_model_name(temp_string);
+        if(validation) {
+            strcpy(record->model_name, temp_string);
+        }
+        else {
+            printf(" Podatak nije validan! \n");
+        }
+    } while(validation == 0);
 
-    printf(" Unesite tezinu modela namestaja(do 10000 kg): ");
-    fflush(stdin);
-    scanf("%d", &record->weight);
+    do {
+        printf(" Unesite tezinu modela namestaja(do 10000 kg): ");
+        fflush(stdin);
+        gets(temp_string);
+        validation = validate_weight(atoi(temp_string));
+        if(validation) {
+            record->weight = atoi(temp_string);
+        }
+        else {
+            printf(" Podatak nije validan! \n");
+        }
+    } while(validation == 0);
 
     record->status = 1;
 }
