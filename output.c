@@ -1,4 +1,5 @@
 #include "output.h"
+#include "validation.h"
 
 // stampanja
 void print_record(Record *record) {
@@ -42,15 +43,15 @@ void print_serial() {
 
 void print_sequential() {
     FILE *sequential;
-    Record *record = malloc(sizeof(Record));
+    Record record;
 
     sequential = fopen("sequential.bin", "rb");
     if(!sequential) {
         printf("\n Doslo je do greske pri otvaranju datoteke! \n");
     }
 
-    while(fread(record, sizeof(Record), 1, sequential)){
-        print_record(record);
+    while(fread(&record, sizeof(Record), 1, sequential)){
+        print_record(&record);
     }
     fclose(sequential);
 }
@@ -60,9 +61,15 @@ void print_primary_zone() {
     Block_primary_zone *bpz = malloc(sizeof(Block_primary_zone));
     int i;
 
+    if(!validate_file_name(active_file_name)) {
+        printf("\n Nije odabrana aktivna datoteka! \n");
+        return;
+    }
+
     index_sequential = fopen(active_file_name, "rb");
     if(index_sequential == NULL) {
         printf("\n Doslo je do greske pri otvaranju datoteke! \n");
+        return;
     }
 
     Header header;
@@ -79,6 +86,7 @@ void print_primary_zone() {
             }
         }
     }
+    free(bpz);
     fclose(index_sequential);
 }
 
@@ -87,9 +95,15 @@ void print_index_zone() {
     Block_index_zone *biz = malloc(sizeof(Block_index_zone));
     int i;
 
+    if(!validate_file_name(active_file_name)) {
+        printf("\n Nije odabrana aktivna datoteka! \n");
+        return;
+    }
+
     index_sequential = fopen(active_file_name, "rb");
     if(index_sequential == NULL) {
         printf("\n Doslo je do greske pri otvaranju datoteke! \n");
+        return;
     }
 
     Header header;
@@ -108,14 +122,19 @@ void print_index_zone() {
 }
 
 void print_overflow_zone() {
-
     FILE *index_sequential;
     Block_overflow_zone boz;
     int i;
 
+    if(!validate_file_name(active_file_name)) {
+        printf("\n Nije odabrana aktivna datoteka! \n");
+        return;
+    }
+
     index_sequential = fopen(active_file_name, "rb");
     if(index_sequential == NULL) {
         printf("\n Doslo je do greske pri otvaranju datoteke! \n");
+        return;
     }
 
     Header header;
@@ -139,11 +158,14 @@ void print_temp_serial() {
     serial = fopen("temp_serial.bin", "rb");
     if(serial == NULL) {
         printf("\n Doslo je do greske pri otvaranju datoteke! \n");
+        return;
     }
 
     while(fread(record, sizeof(Record), 1, serial)){
         print_record(record);
     }
+
+    free(record);
     fclose(serial);
 }
 
@@ -151,13 +173,21 @@ void print_temp_sequential() {
     FILE *sequential;
     Record *record = malloc(sizeof(Record));
 
+    if(!validate_file_name(active_file_name)) {
+        printf("\n Nije odabrana aktivna datoteka! \n");
+        return;
+    }
+
     sequential = fopen("temp_sequential.bin", "rb");
     if(!sequential) {
         printf("\n Doslo je do greske pri otvaranju datoteke! \n");
+        return;
     }
 
     while(fread(record, sizeof(Record), 1, sequential)){
         print_record(record);
     }
+
+    free(record);
     fclose(sequential);
 }

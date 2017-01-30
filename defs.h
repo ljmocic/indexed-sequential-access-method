@@ -95,10 +95,11 @@ void reorganization_active_file();
 // pomocne fije
 void get_record_from_user_serial(Record*);
 void get_record_from_user_index_sequential(Record*);
-void add_record_to_primary(Record);
+void add_record_to_active(Record);
 Search_result search_primary_overflow(int);
 Search_result search_serial(int);
 int find_primary_address_block_to_write(int id);
 Header init_header();
+void init_primary_zone(Block_primary_zone *, int);
 
 #endif // DEFS_H_INCLUDED

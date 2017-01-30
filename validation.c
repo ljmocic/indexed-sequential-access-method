@@ -1,29 +1,40 @@
 #include "validation.h"
 #include "defs.h"
 
+int validate_file_name(char *name) {
+    if(strcmp(name, "") == 0) {
+        return 0;
+    }
+    return 1;
+}
+
 int validate_id_serial(int id) {
-    if(id > 0 || id <= MAX_KEY_VALUE) {
+    if(id > 0 && id < MAX_KEY_VALUE) {
         Search_result sr = search_serial(id);
         if(sr.found == 0) {
             return 1;
         }
         else {
+            printf(" Identifikacioni broj vec postoji u datoteci! \n");
             return 0;
         }
     }
+    printf(" Identifikacioni broj nije validan! \n");
     return 0;
 }
 
 int validate_id_index_sequential(int id) {
-    if(id > 0 || id <= MAX_KEY_VALUE) {
+    if(id > 0 && id < MAX_KEY_VALUE) {
         Search_result sr = search_primary_overflow(id);
         if(sr.found == 0) {
             return 1;
         }
         else {
+            printf(" Identifikacioni broj vec postoji u datoteci! \n");
             return 0;
         }
     }
+    printf(" Identifikacioni broj nije validan! \n");
     return 0;
 }
 

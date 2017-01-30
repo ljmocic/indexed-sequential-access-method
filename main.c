@@ -108,6 +108,7 @@ void create_empty_file() {
     }
     else {
         printf("\n Doslo je do greske pri formiranju datoteke! \n");
+        return;
     }
 
     fclose(file);
@@ -120,6 +121,11 @@ void choose_active_file() {
     printf("\n Unesite naziv zeljene aktivne datoteke: ");
     fflush(stdin);
     gets(file_name);
+
+    if(!validate_file_name(file_name)) {
+        printf("\n Ime datoteke nije validno! \n");
+        return;
+    }
 
     active_file = fopen(file_name, "rb");
     if(active_file) {
@@ -151,15 +157,19 @@ void create_serial_file() {
         printf("\n Doslo je do greske pri otvaranju / kreiranju serijske datoteke! \n");
         return;
     }
+    fclose(serial);
 
     for(i = 0; i < BLOCK_FACTOR; i++) {
         Record *record = (Record *)malloc(sizeof(Record));
         printf("\n Slog %d:", i + 1);
         get_record_from_user_serial(record);
+        serial = fopen("serial.bin", "ab+");
         fwrite(record, sizeof(Record), 1, serial);
+        fclose(serial);
     }
 
     fclose(serial);
+    printf("\n Serijska datoteka uspesno kreirana/azurirana! \n");
 }
 
 void create_sequential_file(int reorganization) {
@@ -193,12 +203,13 @@ void create_sequential_file(int reorganization) {
         block.records[i++] = iterator->record;
         if(i == BLOCK_FACTOR) {
             fwrite(&block, sizeof(Block), 1, sequential);
-            printf("blok: %d %d %d %d %d", block.records[0].id, block.records[1].id, block.records[2].id, block.records[3].id, block.records[4].id);
+            // printf("blok: %d %d %d %d %d", block.records[0].id, block.records[1].id, block.records[2].id, block.records[3].id, block.records[4].id);
             i = 0;
         }
         iterator = iterator->next;
     } while(iterator != NULL);
 
+    // zapisi poslednji blok u slucaju reorganizacije
     for(j = 0; j < i; j++) {
         fwrite(&block.records[j], sizeof(Record), 1, sequential);
     }
@@ -207,6 +218,8 @@ void create_sequential_file(int reorganization) {
     free(iterator);
     fclose(serial);
     fclose(sequential);
+
+    printf("\n Sekvencijalna datoteka uspesno kreirana! \n");
 }
 
 void create_index_sequential_file(int reorganization) {
@@ -215,19 +228,17 @@ void create_index_sequential_file(int reorganization) {
 
     if(reorganization) {
         sequential = fopen("temp_sequential.bin", "rb");
-        printf("OTVORENA TEMP SEQ!");
     }
     else {
         sequential = fopen("sequential.bin", "rb");
     }
 
-    if(strcmp(active_file_name, "")) {
-        index_sequential = fopen(active_file_name, "wb");
-    }
-    else {
+    if(!validate_file_name(active_file_name)) {
         printf("\n Nije odabrana aktivna datoteka! \n");
         return;
     }
+
+    index_sequential = fopen(active_file_name, "wb");
 
     if(sequential == NULL || index_sequential == NULL) {
         printf("\n Doslo je do greske pri otvaranju datoteke!\n");
@@ -237,18 +248,16 @@ void create_index_sequential_file(int reorganization) {
     // pronadji broj blokova sekvencijane
     fseek(sequential, 0, SEEK_END);
     int number_of_records = ftell(sequential) / sizeof(Record);
-    printf("BROJ SLOGOVA! %d", number_of_records);
     rewind(sequential);
 
-    // broj dozvoljenih slogova u bloku primarne zone
-    int num_allowed_rec_bpz = (int) (IBF * BLOCK_FACTOR); // ibf * BLOCK_FACTOR
+    // broj inicijalno dozvoljenih slogova u bloku primarne zone
+    int num_allowed_rec_bpz = (int) (IBF * BLOCK_FACTOR);
     int number_of_blocks = number_of_records / num_allowed_rec_bpz;
 
     // odvoji blok za preostale slogove
     if(number_of_records % num_allowed_rec_bpz > 0) {
         number_of_blocks++;
     }
-    //printf("BROJ BLOKOVA! %d", number_of_blocks);
 
     // zapisi header na pocetak datoteke
     Header header = init_header();
@@ -261,18 +270,7 @@ void create_index_sequential_file(int reorganization) {
     Block_primary_zone bpz[number_of_blocks + 1];
 
     // inicijalizujemo blokove primarne zone
-    for(i = 0; i < number_of_blocks; i++) {
-        bpz[i].address = -1;
-        for(j = 0; j < BLOCK_FACTOR; j++) {
-            bpz[i].records[j].id = -1;
-            bpz[i].records[j].furniture_type[0] = 0;
-            bpz[i].records[j].model_name[0] = 0;
-            bpz[i].records[j].production_date[0] = 0;
-            bpz[i].records[j].production_time[0] = 0;
-            bpz[i].records[j].weight = 0;
-            bpz[i].records[j].status = 0;
-        }
-    }
+    init_primary_zone(bpz, number_of_blocks);
 
     // maksimalne vrednosti kljuca i njihove adrese i dodatni brojaci
     int bpz_max[number_of_blocks];
@@ -283,6 +281,7 @@ void create_index_sequential_file(int reorganization) {
     while(fread(&record, sizeof(Record), 1, sequential)) {
 
         if(record_counter < num_allowed_rec_bpz) {
+            // ako blok nije popunjen do dozvoljenog, samo upisi slog
             bpz[bpz_counter].records[record_counter++] = record;
         }
         else {
@@ -294,20 +293,13 @@ void create_index_sequential_file(int reorganization) {
             record_counter = 0;
             bpz[bpz_counter].records[record_counter++] = record;
         }
-        print_record(&record);
+        // print_record(&record);
     }
 
     if(number_of_blocks % num_allowed_rec_bpz != 0) {
         // zapisi maksimalni kljuc od poslenjeg upisanog bloka primarne zone
         bpz_max[bpz_counter] = bpz[bpz_counter].records[number_of_blocks % num_allowed_rec_bpz].id;
-        //printf("SADA: %d", bpz_max[bpz_counter]);
     }
-
-    /*
-    for(i = 0; i <= bpz_counter; i++) {
-        printf("\t %d", bpz_max[i]);
-    }
-    */
 
     // zapisi adrese blokova i upisi primarnu zonu u datoteku
     header.primary_zone_adress = ftell(index_sequential);
@@ -321,14 +313,6 @@ void create_index_sequential_file(int reorganization) {
         bpz_address[i] = ftell(index_sequential);
         fwrite(&bpz[i], sizeof(Block_primary_zone), 1, index_sequential);
     }
-
-    /*
-    // sadrzaj maksimalnih kljuceva u blokovima i njihovih adresa
-    for(i = 0; i < number_of_blocks; i++) {
-        printf("%d ", bpz_max[i]);
-        printf("%d ", bpz_address[i]);
-    }
-    */
 
     // INDEX ZONA
 
@@ -347,12 +331,6 @@ void create_index_sequential_file(int reorganization) {
     Block_index_zone *biz = (Block_index_zone *)malloc(sizeof(Block_index_zone) * bpz_counter);
     int *addresses = (int *)malloc(sizeof(int) * bpz_counter);
     j = 0;
-
-    /*
-    for(i = 0; i <= bpz_counter; i++) {
-        printf("\t %d", bpz_max[i]);
-    }
-    */
 
     // generisem kljuceve viseg nivoa
     for(i = 0; i < number_of_blocks / 2; i++){
@@ -390,8 +368,8 @@ void create_index_sequential_file(int reorganization) {
         nodes_count[i] = (int)ceil((double)number_of_blocks / pow(2.0, h - i + 1));
     }
 
-    Block_index_zone * preth;
-    Block_index_zone * novi;
+    Block_index_zone *preth;
+    Block_index_zone *novi;
     int *adr_preth;
     int *adr_novi;
 
@@ -399,10 +377,10 @@ void create_index_sequential_file(int reorganization) {
     // srednji nivo nodes_count[h-1]
     // donji nivo nodes_count[h]
 
-
     // prodji kroz stablo i generisi cvorove
     for (i = 1; i < h; i++) {
 
+        // ako je prvi prolaz, mora da generise iz prethodnih nizova u kojima su listovi
         if (i == 1){
             preth = biz;
             adr_preth = addresses;
@@ -425,6 +403,7 @@ void create_index_sequential_file(int reorganization) {
         */
 
         int p = 0;
+        // postavi kljuceve od donjih levih, i uzmi adrese
         for(j = 0; j < nodes_count[h - i] - 1; j++) {
             novi[j].keys[0] = preth[p].keys[1];
             novi[j].address[0] = adr_preth[p++];
@@ -433,24 +412,26 @@ void create_index_sequential_file(int reorganization) {
             adr_novi[j] = ftell(index_sequential);
             fwrite(&novi[j], sizeof(Block_index_zone), 1, index_sequential);
             header.block_count_index_zone++;
-            printf("\nPROBAJ PARNI: %d %d\n", novi[j].keys[0], novi[j].keys[1]);
+            // printf("\nPROBAJ PARNI: %d %d\n", novi[j].keys[0], novi[j].keys[1]);
         }
-        //printf("dasda %d" ,preth[nodes_count[h - i + 1] - 1].keys[1]);
+        // ako je u prethodnom levi bio -1, i nije gornji nivo stabla, onda upisi maksimalan kljuc
         if(preth[nodes_count[h - i + 1] - 1].keys[1] == -1 && h - i != 1) {
             novi[j].keys[0] = 999999999;
             novi[j].address[0] = adr_preth[p++];
             novi[j].keys[1] = -1;
             novi[j].address[1] = -1;
-            printf("\nPROBAJ GRANICNI: %d %d\n", novi[j].keys[0], novi[j].keys[1]);
+            // printf("\nPROBAJ GRANICNI: %d %d\n", novi[j].keys[0], novi[j].keys[1]);
         }
+        // ako je gornji nivo stabla i desni je -1, automatski upisi maks u gornji levi // proveriti jos da li je uopste potrebno
         if(h - i == 1 && preth[nodes_count[h - i + 1] - 1].keys[1] == -1) {
             novi[j].keys[0] = preth[p].keys[1];
             novi[j].address[0] = adr_preth[p++];
             novi[j].keys[1] = preth[p].keys[0];
             novi[j].address[1] = adr_preth[p++];
-            printf("\nPROBAJ2: %d %d\n", novi[j].keys[0], novi[j].keys[1]);
+            // printf("\nPROBAJ2: %d %d\n", novi[j].keys[0], novi[j].keys[1]);
         }
         else {
+            // slucajevi za poslednji nivo stabla
             if(h - i == 1 && preth[nodes_count[h - i + 1] - 1].keys[1] == -1) {
                 novi[j].keys[0] = preth[p].keys[1];
                 novi[j].address[0] = adr_preth[p++];
@@ -463,19 +444,22 @@ void create_index_sequential_file(int reorganization) {
                 novi[j].keys[1] = preth[p].keys[1];
                 novi[j].address[1] = adr_preth[p++];
             }
-            printf("\nPROBAJ3 GLAVNI: %d %d\n", novi[j].keys[0], novi[j].keys[1]);
+            // printf("\nPROBAJ3 GLAVNI: %d %d\n", novi[j].keys[0], novi[j].keys[1]);
         }
 
         adr_novi[j] = ftell(index_sequential);
         fwrite(&novi[j], sizeof(Block_index_zone), 1, index_sequential);
         header.block_count_index_zone++;
 
+        // vrati se na kraj datoteke
         fseek(index_sequential, 0, SEEK_SET);
         fwrite(&header, sizeof(Header), 1, index_sequential);
         fseek(index_sequential, 0, SEEK_END);
     }
 
-    // sada pocinje zona prekoracenja
+    // ZONA PREKORACENJA
+
+    // postavi adrese u header
     header.overflow_zone_address = ftell(index_sequential);
     header.free_overflow_block = header.overflow_zone_address;
 
@@ -492,25 +476,41 @@ void create_index_sequential_file(int reorganization) {
     fseek(index_sequential, 0, SEEK_SET);
     fwrite(&header, sizeof(Header), 1, index_sequential);
 
+    free(preth);
+    free(novi);
+    free(biz);
+    free(addresses);
     fclose(sequential);
     fclose(index_sequential);
 
     // print_index_zone();
     // print_overflow_zone();
+
+    printf("\n Indeks sekvencijalna datoteka uspesno kreirana! \n");
 }
 
 void write_to_active_file() {
-    // ukoliko kljuc ne postoji
     Record record;
+
+    if(!validate_file_name(active_file_name)) {
+        printf("\n Nije odabrana aktivna datoteka!");
+        return;
+    }
+
     get_record_from_user_index_sequential(&record);
     // print_record(&record);
-    add_record_to_primary(record);
+    add_record_to_active(record);
 }
 
 void search_active_file() {
-    FILE *index_sequential = fopen(active_file_name, "rb");
     int id;
 
+    if(!validate_file_name(active_file_name)) {
+        printf("\n Nije odabrana aktivna datoteka!");
+        return;
+    }
+
+    FILE *index_sequential = fopen(active_file_name, "rb");
     if(index_sequential == NULL) {
         printf("\n Aktivni fajl nije odabran!");
         return;
@@ -544,9 +544,16 @@ void search_active_file() {
 }
 
 void reorganization_active_file() {
-    FILE *index_sequential = fopen(active_file_name, "rb");
-    FILE *temp_serial = fopen("temp_serial.bin", "wb");
+    FILE *index_sequential, *temp_serial;
     int i, j;
+
+    if(!validate_file_name(active_file_name)) {
+        printf("\n Nije odabrana aktivna datoteka!");
+        return;
+    }
+
+    index_sequential = fopen(active_file_name, "rb");
+    temp_serial = fopen("temp_serial.bin", "wb");
 
     if(index_sequential == NULL || temp_serial == NULL) {
         printf("Doslo je do greske pri otvaranju datoteke!\n");
@@ -601,9 +608,6 @@ void get_record_from_user_serial(Record *record) {
         validation = validate_id_serial(atoi(temp_string));
         if(validation) {
             record->id = atoi(temp_string);
-        }
-        else {
-            printf(" Identifikacioni broj vec postoji u datoteci! \n");
         }
     } while(validation == 0);
 
@@ -687,9 +691,6 @@ void get_record_from_user_index_sequential(Record *record) {
         if(validation) {
             record->id = atoi(temp_string);
         }
-        else {
-            printf(" Identifikacioni broj vec postoji u datoteci! \n");
-        }
     } while(validation == 0);
 
     do {
@@ -760,14 +761,20 @@ void get_record_from_user_index_sequential(Record *record) {
     record->status = 1;
 }
 
-void add_record_to_primary(Record record) {
-    //FILE *index_sequential = fopen("index_sequential.bin", "rb+");
+void add_record_to_active(Record record) {
+    int i;
+
+    if(!validate_file_name(active_file_name)) {
+        printf("\n Nije odabrana aktivna datoteka!");
+        return;
+    }
+
     int address_primary = find_primary_address_block_to_write(record.id);
     FILE *index_sequential = fopen(active_file_name, "rb+");
-    int i;
 
     if(index_sequential == NULL) {
         printf("Doslo je do greske pri ucitavanju datoteke!\n");
+        return;
     }
 
     Header header;
@@ -878,12 +885,12 @@ void add_record_to_primary(Record record) {
         //printf("%d ", bpz.records[i].id);
         if(bpz.records[i].id == -1 || bpz.records[i].status == 0) {
             index = i;
-            printf("Nasao index: %d \t", index);
+            // printf("Nasao index: %d \t", index);
             break;
         }
         else if(bpz.records[i].id > record.id) {
             index = i;
-            printf("Nasao index: %d \t", index);
+            // printf("Nasao index: %d \t", index);
             break;
         }
     }
@@ -912,21 +919,33 @@ void add_record_to_primary(Record record) {
     fclose(index_sequential);
 }
 
-// pretraga prolaskom kroz primarnu zonu
 Search_result search_primary_overflow(int id) {
     // pretraga
+
+    if(!validate_file_name(active_file_name)) {
+        printf("\n Nije odabrana aktivna datoteka!");
+        Search_result sr;
+        sr.found = 0;
+        return sr;
+    }
+
     FILE *index_sequential = fopen(active_file_name, "rb");
+    if(index_sequential == NULL) {
+        printf("Doslo je do greske pri ucitavanju datoteke!\n");
+    }
+
     Block_index_zone biz;
     Header header;
     fread(&header, sizeof(Header), 1, index_sequential);
 
-
+    // procitaj pretposlednji blok indeks zone koji je zapravo root stabla
     fseek(index_sequential, (header.index_zone_address + sizeof(Block_index_zone)* (header.block_count_index_zone - 1)), SEEK_SET);
     fread(&biz, sizeof(Block_index_zone), 1, index_sequential);
 
-    int i = (int)ceil(log2(header.block_count_primary_zone)) - 1; //
+    int i = (int)ceil(log2(header.block_count_primary_zone)) - 1;
     int next_address;
 
+    // idi kroz stablo i nadji list u kom se nalazi adresa primarnog bloka
     //printf("Kljucevi: %d %d\n", biz.keys[0], biz.keys[1]);
     for(; i > 0; i--) {
         if(id <= biz.keys[0]) {
@@ -942,15 +961,18 @@ Search_result search_primary_overflow(int id) {
     }
     Block_primary_zone bpz;
     int address_primary;
+    // odaberi adresu u listu
     if(id <= biz.keys[0]) {
         address_primary = biz.address[0];
     }
     else {
         address_primary = biz.address[1];
     }
+    // ucitaj blok primarne zone
     fseek(index_sequential, address_primary, SEEK_SET);
     fread(&bpz, sizeof(Block_primary_zone), 1, index_sequential);
 
+    // iteriraj kroz blok da nadjes slog sa kljucem
     for(i = 0; i < BLOCK_FACTOR; i++) {
         //print_record(&bpz.records[i]);
         if(id == bpz.records[i].id) {
@@ -965,6 +987,7 @@ Search_result search_primary_overflow(int id) {
         }
     }
 
+    // ako ne nadjes, prodji kroz "listu" prekoracenja
     if(bpz.address != -1) {
         Block_overflow_zone boz;
         boz.address = bpz.address;
@@ -973,12 +996,14 @@ Search_result search_primary_overflow(int id) {
         do {
             int last = boz.address;
             fseek(index_sequential, boz.address, SEEK_SET);
+
+            // ako si dosao do kraja, izadji
             if(!fread(&boz, sizeof(Block_overflow_zone), 1, index_sequential)) {
                 break;
-            }// printf(" %d %d", boz.records[0].id, id);
+            }
 
+            // ako su id-evi jednaki onda vrati kao rezultat
             if(boz.records[0].id == id) {
-                //printf("Gledam da li su id jednaki! \n");
                 Search_result sr;
                 sr.index = -1;
                 sr.overflow_zone = last;
@@ -987,33 +1012,31 @@ Search_result search_primary_overflow(int id) {
                 return sr;
             }
         } while(boz.address != -1);
-        //printf("Dosao sam do poslednjeg, nema nista! \n");
     }
 
+    // zatvori datoteke i reci da nisi nasao taj id
     fclose(index_sequential);
     Search_result sr;
     sr.index = -1;
     sr.overflow_zone = -1;
     sr.primary_zone_address = -1;
     sr.found = 0;
-
     return sr;
 }
 
 Search_result search_serial(int id) {
     FILE *serial;
-    Record *record = malloc(sizeof(Record));
+    Record record;
+    Search_result sr;
 
     serial = fopen("serial.bin", "rb");
     if(!serial) {
         printf("\n Doslo je do greske pri otvaranju datoteke! \n");
     }
 
-    Search_result sr;
-
-    while(fread(record, sizeof(Record), 1, serial)){
-        //print_record(record);
-        if(record->id == id) {
+    // prodji kroz serijsku i pokusaj naci taj id, ako ga nema, onda vrati 0 u Search_result
+    while(fread(&record, sizeof(Record), 1, serial)){
+        if(record.id == id) {
             sr.found = 1;
             fclose(serial);
             return sr;
@@ -1026,20 +1049,30 @@ Search_result search_serial(int id) {
 }
 
 int find_primary_address_block_to_write(int id) {
-    // pretraga
-    FILE *index_sequential = fopen(active_file_name, "rb");
+    FILE *index_sequential;
     Block_index_zone biz;
     Header header;
+
+    if(!validate_file_name(active_file_name)) {
+        printf("\n Nije odabrana aktivna datoteka!");
+        return 0;
+    }
+
+    index_sequential = fopen(active_file_name, "rb");
+    if(index_sequential == NULL) {
+        printf("Doslo je do greske pri ucitavanju datoteke!\n");
+        return 0;
+    }
+
+    // ucitaj root blok indeks zone
     fread(&header, sizeof(Header), 1, index_sequential);
-
-
     fseek(index_sequential, (header.index_zone_address + sizeof(Block_index_zone)* (header.block_count_index_zone - 1)), SEEK_SET);
     fread(&biz, sizeof(Block_index_zone), 1, index_sequential);
 
-    int i = (int)ceil(log2(header.block_count_primary_zone)) - 1; // visina stabla, modifikovati kasnije
+    int i = (int)ceil(log2(header.block_count_primary_zone)) - 1;
     int next_address;
 
-    //printf("Kljucevi: %d %d\n", biz.keys[0], biz.keys[1]);
+    // prolaskom kroz "stablo" nadji adresu primarnog bloka kojoj id pripada
     for(; i > 0; i--) {
         if(id <= biz.keys[0]) {
             next_address = biz.address[0];
@@ -1059,10 +1092,7 @@ int find_primary_address_block_to_write(int id) {
     else {
         address_primary = biz.address[1];
     }
-    //fseek(index_sequential, next_address, SEEK_SET);
-    //fread(&biz, sizeof(Block_index_zone), 1, index_sequential);
     fclose(index_sequential);
-
     return address_primary;
 }
 
@@ -1075,4 +1105,20 @@ Header init_header() {
     header.overflow_zone_address = 0;
     header.free_overflow_block = 0;
     return header;
+}
+
+void init_primary_zone(Block_primary_zone *bpz, int number_of_blocks) {
+    int i, j;
+    for(i = 0; i < number_of_blocks; i++) {
+        bpz[i].address = -1;
+        for(j = 0; j < BLOCK_FACTOR; j++) {
+            bpz[i].records[j].id = -1;
+            bpz[i].records[j].furniture_type[0] = 0;
+            bpz[i].records[j].model_name[0] = 0;
+            bpz[i].records[j].production_date[0] = 0;
+            bpz[i].records[j].production_time[0] = 0;
+            bpz[i].records[j].weight = 0;
+            bpz[i].records[j].status = 0;
+        }
+    }
 }

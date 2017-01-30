@@ -1,6 +1,7 @@
 #ifndef VALIDATION_H_INCLUDED
 #define VALIDATION_H_INCLUDED
 
+int validate_file_name(char*);
 int validate_id_serial(int);
 int validate_id_index_sequential(int);
 int validate_furniture_type(char*);
