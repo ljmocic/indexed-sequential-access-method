@@ -12,7 +12,7 @@
 #define PRODUCTION_DATE_LIMIT 8
 #define PRODUCTION_TIME_LIMIT 4
 #define MODEL_NAME_LIMIT 50
-#define WEIGHT_LIMIT 50
+#define WEIGHT_LIMIT 10000
 
 // ostala ogranicenja
 #define BLOCK_FACTOR 5

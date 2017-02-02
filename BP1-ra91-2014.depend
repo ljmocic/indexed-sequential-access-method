@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1485777546 source:c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\main.c
+1485821816 source:c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\main.c
 	"defs.h"
 	"output.h"
 	"list.h"
@@ -8,7 +8,7 @@
 1485770100 source:c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\list.c
 	"defs.h"
 
-1485768819 c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\defs.h
+1485778287 c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\defs.h
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -29,4 +29,66 @@
 	"defs.h"
 
 1485767798 c:\users\ljmocic\desktop\baze_projekat\bp1-ra91-2014\validation.h
+
+1485770100 source:c:\users\ljmocic\desktop\baze_projekat\ra912014\list.c
+	"defs.h"
+
+1485778287 c:\users\ljmocic\desktop\baze_projekat\ra912014\defs.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<math.h>
+
+1485821816 source:c:\users\ljmocic\desktop\baze_projekat\ra912014\main.c
+	"defs.h"
+	"output.h"
+	"list.h"
+	"validation.h"
+
+1485695636 c:\users\ljmocic\desktop\baze_projekat\ra912014\output.h
+	"defs.h"
+
+1485557426 c:\users\ljmocic\desktop\baze_projekat\ra912014\list.h
+	"defs.h"
+
+1485767798 c:\users\ljmocic\desktop\baze_projekat\ra912014\validation.h
+
+1485775120 source:c:\users\ljmocic\desktop\baze_projekat\ra912014\output.c
+	"output.h"
+	"validation.h"
+
+1485775498 source:c:\users\ljmocic\desktop\baze_projekat\ra912014\validation.c
+	"validation.h"
+	"defs.h"
+
+1485770102 source:c:\users\ljmocic\desktop\arhiva za slanje\ra912014\list.c
+	"defs.h"
+
+1485778288 c:\users\ljmocic\desktop\arhiva za slanje\ra912014\defs.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<math.h>
+
+1485821818 source:c:\users\ljmocic\desktop\arhiva za slanje\ra912014\main.c
+	"defs.h"
+	"output.h"
+	"list.h"
+	"validation.h"
+
+1485695638 c:\users\ljmocic\desktop\arhiva za slanje\ra912014\output.h
+	"defs.h"
+
+1485557428 c:\users\ljmocic\desktop\arhiva za slanje\ra912014\list.h
+	"defs.h"
+
+1485767800 c:\users\ljmocic\desktop\arhiva za slanje\ra912014\validation.h
+
+1485775122 source:c:\users\ljmocic\desktop\arhiva za slanje\ra912014\output.c
+	"output.h"
+	"validation.h"
+
+1485775500 source:c:\users\ljmocic\desktop\arhiva za slanje\ra912014\validation.c
+	"validation.h"
+	"defs.h"
 
